@@ -1,27 +1,39 @@
 #!/usr/bin/python
+from launchpadlib.launchpad import Launchpad
+from pyme.errors import GPGMEError
+from pyme import core
+import argparse
+import sys
+import os
+
+VERSION = "lp-election-helper 1.0"
+DESCRIPTION = "Harvests public email addresses from a launchpad group"
+HELP_END = """
+    This script requires logging in to a Launchpad account with permission to view the email address
+    of members within the searched group, as Launchpad will hide emails from anonymous users.
+    """
+DEFAULT_BLACKLIST = ["package-import@ubuntu.com"]
+
+
+parser = argparse.ArgumentParser(prog='lp-election-helper', description=DESCRIPTION, epilog=HELP_END)
+parser.add_argument('--version', action='version', version=VERSION)
+parser.add_argument('GROUP', 
+                    help='name of the Launchpad group to search for email addresses')
+args = parser.parse_args()
 
 # TODO: Add a cross-reference check for tech board (must be in both ubuntu-dev and ubuntumembers)
 #       Technically we allow people to be ubuntu devs who have individual package upload rights
 #       without obtaining full membership, however as of this writing no one falls under that.
-# TODO: make this a command-line switch
-search_group = "ubuntumembers" # For CC
-#search_group = "ubuntu-dev"  # For Tech-board
-#search_group = "ubuntu-irc-members" # For IRCC
+search_group = args.GROUP
 
 # In principle we could replace this manual blacklist with a generic launchpad "nonvoter" group and
 # then exclude members of that group from the output here, but at the moment it's just one account
-blacklist = ["package-import@ubuntu.com"]
+# TODO: support further tweaking of blacklist, such as excluding a whole launchpad group
+blacklist = DEFAULT_BLACKLIST
 
-from launchpadlib.launchpad import Launchpad
 
-from pyme.errors import GPGMEError
-from pyme import core
-
-import sys
-import os
-
-# crude hack to avoid old email addresses (like university accounts) that 
-# might already be out of use
+# This is a bit of a crude hack to prefer email addresses that are more likely to be in use
+# occasionally someone will have multiple emails on Launchpad, but only some will still be valid
 def find_preferred_domain(emails):
     for preferred_domain in [ "ubuntu.com", "canonical.com", "gmail.com" ]:
         for possible_email in emails:
