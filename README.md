@@ -1,6 +1,8 @@
-This is a simple, dirty script to get (public) launchpad email addresses from a Launchpad group.
+This is a simple script to get email addresses from a Launchpad group.  First, it searches to see 
+if the user has a Launchpad email address publicly visible.  Failing that, it will look for a GPG 
+key on the account and use the email address located there.
 
-It's sole purpose is to use these emails for running an election using the Condorcet Internet 
+Our sole purpose is to use these emails for running an election using the Condorcet Internet 
 Voting Service (CIVS): http://www.cs.cornell.edu/andru/civs.html
 
 The script requires a group name to search -- make sure this group matches the elligible pool of
