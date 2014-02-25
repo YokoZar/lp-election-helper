@@ -13,6 +13,8 @@ HELP_END = """
     of members within the searched group, as Launchpad will hide emails from anonymous users.
     """
 DEFAULT_BLACKLIST = ["package-import@ubuntu.com"]
+# In the case of multiple email addresses, these domains are given preference, in order
+PREFERRED_DOMAINS = ["ubuntu.com", "canonical.com", "gmail.com"]
 
 
 parser = argparse.ArgumentParser(prog='lp-election-helper', description=DESCRIPTION, epilog=HELP_END)
@@ -32,13 +34,12 @@ search_group = args.GROUP
 blacklist = DEFAULT_BLACKLIST
 
 
-# This is a bit of a crude hack to prefer email addresses that are more likely to be in use
-# occasionally someone will have multiple emails on Launchpad, but only some will still be valid
 def find_preferred_domain(emails):
-    for preferred_domain in [ "ubuntu.com", "canonical.com", "gmail.com" ]:
-        for possible_email in emails:
-            if preferred_domain in possible_email:
-                return possible_email
+    if len(emails) > 0:
+        for preferred_domain in PREFERRED_DOMAINS:
+            for possible_email in emails:
+                if possible_email.endswith("@" + preferred_domain):
+                    return possible_email
     return emails[0]
 
 def extract_mails_from_key(keyid, context):
