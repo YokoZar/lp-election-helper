@@ -35,7 +35,7 @@ blacklist = DEFAULT_BLACKLIST
 
 
 def find_preferred_domain(emails):
-    if len(emails) > 0:
+    if len(emails) > 1:
         for preferred_domain in PREFERRED_DOMAINS:
             for possible_email in emails:
                 if possible_email.endswith("@" + preferred_domain):
