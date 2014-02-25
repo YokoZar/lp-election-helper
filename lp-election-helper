@@ -73,7 +73,7 @@ def main():
     members = filter(lambda a: not a.is_team, launchpad.people[search_group].participants)
     context = core.Context()
 
-    guessed_members = []
+    missed_accounts = []
     print "#### Members with verified public email addresses ####"
     print
     for member in members:
@@ -81,18 +81,16 @@ def main():
         if email in blacklist:
             continue
         if email is not "-":
-            # TODO: control output by command line switches
+            # TODO: control output by command line switches (eg without names)
             print "%s <%s>" % (member.display_name, email)
-            #print email
         else:
-            # TODO: print a separate list of display names for nonexistant emails
-            guessed_email = member.name + "@ubuntu.com" # Note that this isn't perfect and will miss some!
-            guessed_members.append(guessed_email)
+            missed_account = "%s (%s)" % (member.display_name, member.name)
+            missed_accounts.append(missed_account)
     print
-    print "#### Members with no public email address, assuming email = launchpadid@ubuntu.com ####"
+    print "#### Members with no public email address or GPG key ####"
     print
-    for guessed_member in guessed_members:
-        print guessed_member
+    for missed_account in missed_accounts:
+        print missed_account
 
 if __name__ == '__main__':
     try:
