@@ -46,11 +46,9 @@ def extract_mails_from_key(keyid, context):
     try:
         key = context.get_key(str(keyid), False)
     except GPGMEError:
-        return "-"
-    emails = set()
+        return
     for uid in key.uids:
-        emails.add(uid.email)
-    return find_preferred_domain(list(emails))
+        yield uid.email
 
 def get_email(person, context):
     try:
@@ -58,15 +56,13 @@ def get_email(person, context):
         return email
     except ValueError:
         emails = [a.email for a in person.confirmed_email_addresses]
-        if len(emails):
-            email = find_preferred_domain(emails)
-            if email:
-                return email
-        keys = [a for a in person.gpg_keys]
-        for key in keys:
-            email = extract_mails_from_key(key.keyid, context)
-            if email:
-                return email
+        if emails:
+            return find_preferred_domain(emails)
+        for key in person.gpg_keys:
+            for email in extract_mails_from_key(key.keyid, context):
+                emails.append(email)
+        if emails:
+            return find_preferred_domain(emails)
     return "-"
 
 def main():
