@@ -19,6 +19,8 @@ PREFERRED_DOMAINS = ["ubuntu.com", "canonical.com", "gmail.com"]
 
 parser = argparse.ArgumentParser(prog='lp-election-helper', description=DESCRIPTION, epilog=HELP_END)
 parser.add_argument('--version', action='version', version=VERSION)
+parser.add_argument('--names', '-n', action='store_true',
+                    help='output emails in "Full Name <email@foo.com>" format')
 parser.add_argument('GROUP', 
                     help='name of the Launchpad group to search for email addresses')
 args = parser.parse_args()
@@ -78,8 +80,10 @@ def main():
         if email in blacklist:
             continue
         if email is not "-":
-            # TODO: control output by command line switches (eg without names)
-            print "%s <%s>" % (member.display_name, email)
+            if args.names:
+                print "%s <%s>" % (member.display_name, email)
+            else:
+                print email
         else:
             missed_account = "%s (%s)" % (member.display_name, member.name)
             missed_accounts.append(missed_account)
