@@ -53,18 +53,24 @@ def extract_mails_from_key(fingerprint):
     emails = [line.split('>')[0] for line in possible_emails]
     for email in emails:
         yield email
+    # Python3: replace last 3 lines with: yield from (line.split('>')[0] for line in possible_emails)
+
+def extract_mails_from_keys(gpg_keys):
+    emails = []
+    for key in gpg_keys:
+        for email in extract_mails_from_key(key.fingerprint):
+            emails.append(email)
+    for email in emails:
+        yield email
+    # Python3: replace last 4 lines with: yield from extract_mails_from_key(key.fingerprint)
 
 def get_email(person):
     try:
         email = person.preferred_email_address.email
         return email
     except ValueError:
-        emails = [a.email for a in person.confirmed_email_addresses]
-        if emails:
-            return find_preferred_domain(emails)
-        for key in person.gpg_keys:
-            for email in extract_mails_from_key(key.fingerprint):
-                emails.append(email)
+        emails = [p.email for p in person.confirmed_email_addresses] or \
+                 [email for email in extract_mails_from_keys(person.gpg_keys)]
         if emails:
             return find_preferred_domain(emails)
     return "-"
