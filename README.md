@@ -8,9 +8,9 @@ Voting Service (CIVS): http://www.cs.cornell.edu/andru/civs.html
 The script requires a group name to search -- make sure this group matches the elligible pool of
 voters that you want for the election.  For example:
 
-  lp-election-helper ubuntumembers       # For Ubuntu Community Council
-  lp-election-helper ubuntu-dev          # For Ubuntu Technical Board
-  lp-election-helper ubuntu-irc-members  # For IRC Council
+ - lp-election-helper ubuntumembers       # For Ubuntu Community Council
+ - lp-election-helper ubuntu-dev          # For Ubuntu Technical Board
+ - lp-election-helper ubuntu-irc-members  # For IRC Council
 
 
 Note that it is possible for Launchpad users to have multiple email addresses associated with their
