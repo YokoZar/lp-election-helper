@@ -1,10 +1,12 @@
 #!/usr/bin/python
 from launchpadlib.launchpad import Launchpad
-from pyme.errors import GPGMEError
-from pyme import core
 import argparse
 import sys
 import os
+import subprocess
+
+GPG_COMMAND = "gpg --keyserver=keyserver.ubuntu.com --batch --search-keys "
+DEVNULL = open(os.devnull, 'wb') # Python3: subprocess.DEVNULL
 
 VERSION = "lp-election-helper 1.0"
 DESCRIPTION = "Harvests public email addresses from a launchpad group"
@@ -44,15 +46,15 @@ def find_preferred_domain(emails):
                     return possible_email
     return emails[0]
 
-def extract_mails_from_key(keyid, context):
-    try:
-        key = context.get_key(str(keyid), False)
-    except GPGMEError:
-        return
-    for uid in key.uids:
-        yield uid.email
+def extract_mails_from_key(keyid): # TODO: this is actually the fingerprint, not keyid
+    command = GPG_COMMAND + "0x" + keyid + " | tee"
+    gpg_output = subprocess.check_output(command, shell=True, stderr=DEVNULL)
+    possible_emails = [line for line in gpg_output.split('<') if '>' in line]
+    emails = [line.split('>')[0] for line in possible_emails]
+    for email in emails:
+        yield email
 
-def get_email(person, context):
+def get_email(person):
     try:
         email = person.preferred_email_address.email
         return email
@@ -61,7 +63,7 @@ def get_email(person, context):
         if emails:
             return find_preferred_domain(emails)
         for key in person.gpg_keys:
-            for email in extract_mails_from_key(key.keyid, context):
+            for email in extract_mails_from_key(key.fingerprint):
                 emails.append(email)
         if emails:
             return find_preferred_domain(emails)
@@ -69,14 +71,13 @@ def get_email(person, context):
 
 def main():
     launchpad = Launchpad.login_with('mails', 'production', os.path.expanduser("~/.launchpadlib/cache/"))
-    members = filter(lambda a: not a.is_team, launchpad.people[search_group].participants)
-    context = core.Context()
+    members = [member for member in launchpad.people[search_group].participants if not member.is_team]
 
     missed_accounts = []
     print "#### Members with verified public email addresses ####"
     print
     for member in members:
-        email = get_email(member, context)
+        email = get_email(member)
         if email in blacklist:
             continue
         if email is not "-":
