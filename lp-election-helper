@@ -46,8 +46,8 @@ def find_preferred_domain(emails):
                     return possible_email
     return emails[0]
 
-def extract_mails_from_key(keyid): # TODO: this is actually the fingerprint, not keyid
-    command = GPG_COMMAND + "0x" + keyid + " | tee"
+def extract_mails_from_key(fingerprint):
+    command = GPG_COMMAND + "0x" + fingerprint + " | tee"
     gpg_output = subprocess.check_output(command, shell=True, stderr=DEVNULL)
     possible_emails = [line for line in gpg_output.split('<') if '>' in line]
     emails = [line.split('>')[0] for line in possible_emails]
