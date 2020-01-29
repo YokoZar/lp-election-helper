@@ -16,7 +16,7 @@ HELP_END = """
     """
 DEFAULT_BLACKLIST = ["package-import@ubuntu.com"]
 # In the case of multiple email addresses, these domains are given preference, in order
-PREFERRED_DOMAINS = ["ubuntu.com", "canonical.com", "gmail.com"]
+PREFERRED_DOMAINS = ["kubuntu.org", "ubuntu.com", "canonical.com", "gmail.com"]
 
 
 parser = argparse.ArgumentParser(prog='lp-election-helper', description=DESCRIPTION, epilog=HELP_END)
